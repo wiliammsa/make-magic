@@ -1,0 +1,38 @@
+version: "3.2"
+services:
+    make_magic_mysql:
+      image: "mysql:5.7"
+      restart: always
+      container_name: make_magic_mysql
+      environment:
+        MYSQL_DATABASE: 'make_magic'
+        MYSQL_USER: 'root'
+        MYSQL_PASSWORD: '12345678'
+        MYSQL_ROOT_PASSWORD: '12345'
+      ports:
+        - '3306:3306'
+      volumes:
+        - ./docker/mysql:/var/lib/mysql
+
+    phpmyadmin:
+      image: phpmyadmin/phpmyadmin:4.8
+      restart: always
+      container_name: make_magic_phpmyadmin
+      ports:
+        - 8081:80
+      environment:
+        - PMA_ARBITRARY=0
+        - PMA_HOST=make_magic_mysql
+      links:
+        - make_magic_mysql
+
+    make_magic_backend:
+      build: docker/php
+      container_name: make_magic_backend
+      restart: always
+      ports:
+        - '8080:80'
+      volumes:
+        - ./www/backend:/var/www/html
+      links:
+        - make_magic_mysql
