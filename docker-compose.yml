@@ -1,4 +1,4 @@
-version: "3.2"
+version: "3.7"
 services:
     make_magic_mysql:
       image: "mysql:5.7"
@@ -13,6 +13,8 @@ services:
         - '3306:3306'
       volumes:
         - ./docker/mysql:/var/lib/mysql
+      networks:
+        - make_magic_network
 
     phpmyadmin:
       image: phpmyadmin/phpmyadmin:4.8
@@ -23,8 +25,8 @@ services:
       environment:
         - PMA_ARBITRARY=0
         - PMA_HOST=make_magic_mysql
-      links:
-        - make_magic_mysql
+      networks:
+        - make_magic_network
 
     make_magic_backend:
       build: docker/php
@@ -33,6 +35,10 @@ services:
       ports:
         - '8080:80'
       volumes:
-        - ./www/backend:/var/www/html
-      links:
-        - make_magic_mysql
+        - ./www/api:/var/www/html
+      networks:
+        - make_magic_network
+
+networks:
+  make_magic_network:
+    driver: bridge
