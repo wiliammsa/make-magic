@@ -4,14 +4,14 @@
 namespace App\Repositories;
 
 
-use App\Models\Characters;
+use App\Models\Character;
 use App\Repositories\Contracts\CharacterRepositoryInterface;
 
 class CharacterRepository extends AbstractRepository implements CharacterRepositoryInterface
 {
     protected $model;
 
-    public function __construct(Characters $characterModel)
+    public function __construct(Character $characterModel)
     {
         $this->model = $characterModel;
     }
