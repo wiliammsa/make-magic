@@ -57,7 +57,7 @@ class Handler extends ExceptionHandler
                 $exception->status
             );
         }
-        if ($exception instanceof HouseNotFoundException){
+        if ($exception instanceof HouseNotFoundException || $exception instanceof UnsetPotterApiAccessKeyException){
             return response()->json(
                 ['errors' => $exception->getMessage()],
                 404

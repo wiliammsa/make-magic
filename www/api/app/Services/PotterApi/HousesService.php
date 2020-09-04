@@ -2,6 +2,7 @@
 namespace App\Services\PotterApi;
 
 use App\Exceptions\HouseNotFoundException;
+use App\Exceptions\UnsetPotterApiAccessKeyException;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\Http;
 
@@ -13,6 +14,10 @@ class HousesService
     {
         $potterAPIUrl = env('POTTERAPI_URL');
         $potterAPIAccessKey = env('POTTERAPI_ACCESS_KEY');
+
+        if (!$potterAPIAccessKey){
+            throw new UnsetPotterApiAccessKeyException('A potterapi access key não foi atribuída.');
+        }
 
         $url = $potterAPIUrl . self::ENDPOINT . "/{$id}?key={$potterAPIAccessKey}";
         try {
