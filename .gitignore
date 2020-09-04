@@ -2,3 +2,5 @@
 .idea/
 
 docker/mysql/
+
+www/api/composer.lock
