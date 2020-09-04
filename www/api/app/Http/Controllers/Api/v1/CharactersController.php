@@ -3,19 +3,38 @@
 namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreCharacterRequest;
+use App\Http\Requests\UpdateCharacterRequest;
+use App\Repositories\Contracts\CharacterRepositoryInterface;
+use App\Services\PotterApi\HousesService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Validation\ValidationException;
 
 class CharactersController extends Controller
 {
+    protected $characterRepository;
+
+    public function __construct(CharacterRepositoryInterface $characterRepository)
+    {
+        $this->characterRepository = $characterRepository;
+    }
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json([], Response::HTTP_OK);
+        if ($request->has('house')){
+            $criteria = [['house', $request->get('house')]];
+            $characters = $this->characterRepository->findBy($criteria);
+        } else {
+            $characters = $this->characterRepository->findAll();
+        }
+
+        return response()->json($characters, Response::HTTP_OK);
     }
 
     /**
@@ -24,9 +43,11 @@ class CharactersController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreCharacterRequest $request)
     {
-        return response()->json([], Response::HTTP_CREATED);
+        HousesService::validateHouseId($request->get('house'));
+        $characterCreated = $this->characterRepository->create($request->all());
+        return response()->json($characterCreated, Response::HTTP_CREATED);
     }
 
     /**
@@ -35,9 +56,13 @@ class CharactersController extends Controller
      * @param  string  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(String $id)
+    public function show(Int $id)
     {
-        return response()->json([], Response::HTTP_OK);
+        $character = $this->characterRepository->findById($id);
+        if (!$character) {
+            return response()->json(['error' => 'Personagem não encontrado'], Response::HTTP_NOT_FOUND);
+        }
+        return response()->json($character, Response::HTTP_OK);
     }
 
     /**
@@ -47,9 +72,18 @@ class CharactersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, String $id)
+    public function update(UpdateCharacterRequest $request, Int $id)
     {
-        return response()->json([], Response::HTTP_OK);
+        HousesService::validateHouseId($request->get('house'));
+
+        $character = $this->characterRepository->findById($id);
+
+        if (!$character) {
+            return response()->json(['error' => 'Personagem não encontrado'], Response::HTTP_NOT_FOUND);
+        }
+
+        $character = $this->characterRepository->update($request->except('id'), $id);
+        return response()->json($character, Response::HTTP_OK);
     }
 
     /**
@@ -58,8 +92,14 @@ class CharactersController extends Controller
      * @param  string  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(String $id)
+    public function destroy(Int $id)
     {
-        return response()->json([], Response::HTTP_NO_CONTENT);
+        $character = $this->characterRepository->findById($id);
+        if (!$character) {
+            return response()->json(['error' => 'Personagem não encontrado'], Response::HTTP_NOT_FOUND);
+        }
+
+        $this->characterRepository->delete($id);
+        return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 }
