@@ -6,7 +6,7 @@ abstract class AbstractRepository
 {
     protected $model;
 
-    public function findById($id)
+    public function findById(int $id)
     {
         return $this->model->find($id);
     }
@@ -17,7 +17,7 @@ abstract class AbstractRepository
             $model = $this->model;
             foreach ($criteria as $c)
             {
-                $model = $model->where($c[0], $c[1], $c[2]);
+                $model = $model->where($c[0], '=', $c[1]);
             }
             return $model->get();
         }
@@ -34,12 +34,12 @@ abstract class AbstractRepository
         return $this->model->create($data);
     }
 
-    public function update(array $data, $id)
+    public function update(array $data, int $id)
     {
         return $this->model->find($id)->update($data);
     }
 
-    public function delete($id)
+    public function delete(int $id)
     {
         return $this->model->find($id)->delete();
     }
