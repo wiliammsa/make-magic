@@ -22,6 +22,8 @@ class CreateCharactersTable extends Migration
             $table->string('patronus', 100);
             $table->timestamps();
             $table->softDeletes();
+
+            $table->primary('id');
         });
     }
 
